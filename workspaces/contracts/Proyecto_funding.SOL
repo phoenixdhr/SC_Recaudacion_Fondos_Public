@@ -33,18 +33,20 @@ contract Proyecto_funding{
 
     }
     
-    
-
+    event eveContribuidor(address walletInversor, uint valueContribucion);
+    event eveStateChanche(string id, string state);
 
     function fundProject () public payable requireFundProyect { //funcion que registra el aporte
         walletAutor.transfer(msg.value);
         funds+=msg.value;
+        emit eveContribuidor(msg.sender, msg.value);
+
     }
 
     function changeProjectState(string calldata newStage) public requireChangeName  {
         
         state=newStage;
-
+        emit eveStateChanche(id,state);
     }
 
 
