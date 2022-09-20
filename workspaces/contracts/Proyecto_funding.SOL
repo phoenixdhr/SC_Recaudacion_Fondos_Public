@@ -20,12 +20,28 @@ contract Proyecto_funding{
     }  
 
 
-    function fundProject () public payable { //funcion que registra el aporte
+    modifier requireChangeName() {
+        require( msg.sender == walletAutor,
+                "no puede modificar el proyecto"); 
+                _;
+    }
+
+    modifier  requireFundProyect () {
+        require(msg.sender != walletAutor,
+        "un autor del proyecto no puede autofinanciarse");
+        _;
+
+    }
+    
+    
+
+
+    function fundProject () public payable requireFundProyect { //funcion que registra el aporte
         walletAutor.transfer(msg.value);
         funds+=msg.value;
     }
 
-    function changeProjectState(string calldata newStage) public  {
+    function changeProjectState(string calldata newStage) public requireChangeName  {
         
         state=newStage;
 
