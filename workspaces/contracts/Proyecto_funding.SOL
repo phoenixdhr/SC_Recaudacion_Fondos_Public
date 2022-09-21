@@ -1,3 +1,4 @@
+
 // SPDX-License-Identifier: MIT
 pragma solidity >=0.7.0 <0.9.0;
 
@@ -7,7 +8,7 @@ contract Proyecto_funding{
     string public name;
     string public descripcion;
     address payable public walletAutor;
-    string public state="Opened";
+    uint public state=0;
     uint public funds; //Almacena todos los aportes
     uint public fundRaisingGoal; //Cuanto se espera ganar con la ronda de fundraising
 
@@ -21,35 +22,36 @@ contract Proyecto_funding{
 
 
     modifier requireChangeName() {
-        require( msg.sender == walletAutor,
-                "no puede modificar el proyecto"); 
-                _;
+        require( msg.sender == walletAutor, "no puede modificar el proyecto"); 
+        _;
     }
 
     modifier  requireFundProyect () {
-        require(msg.sender != walletAutor,
-        "un autor del proyecto no puede autofinanciarse");
+        require(msg.sender != walletAutor, "un autor del proyecto no puede autofinanciarse");
         _;
 
     }
     
     event eveContribuidor(address walletInversor, uint valueContribucion);
-    event eveStateChanche(string id, string state);
+    event eveStateChanche(string id, uint state);
 
     function fundProject () public payable requireFundProyect { //funcion que registra el aporte
+    
+        
+        require(state != 1, "la financiacion esta cerrada");
+        require(msg.value > 0 , "no se pude aportar cero fondos");     
+        
         walletAutor.transfer(msg.value);
         funds+=msg.value;
-        emit eveContribuidor(msg.sender, msg.value);
-
+        emit eveContribuidor(msg.sender, msg.value); 
+            
     }
 
-    function changeProjectState(string calldata newStage) public requireChangeName  {
+    function changeProjectState(uint  newStage) public requireChangeName{
         
+        //require(state != newStage, "ngfn");
         state=newStage;
-        emit eveStateChanche(id,state);
+        emit eveStateChanche(id, state);
+
     }
-
-
-
-    
 }
