@@ -10,18 +10,18 @@ contract Proyecto_funding{
         string  name;
         string  descripcion;
         address payable  walletAutor;
-        uint  state;
+        EnumEstado state;
         uint  funds; //Almacena todos los aportes
         uint  fundRaisingGoal; //Cuanto se espera ganar con la ronda de fundraising
     }
 
     Proyecto public proyecto;
-
-
+    enum EnumEstado {open, closed }
+    
 
     constructor (string memory _id, string memory _name, string memory _descripcion, uint _fundRaisingGoal) {
         
-        proyecto = Proyecto(_id, _name, _descripcion, payable(msg.sender), 0, 0, _fundRaisingGoal);
+        proyecto = Proyecto(_id, _name, _descripcion, payable(msg.sender), EnumEstado.open, 0, _fundRaisingGoal);
 
     }  
 
@@ -38,12 +38,12 @@ contract Proyecto_funding{
     }
     
     event eveContribuidor(address walletInversor, uint valueContribucion);
-    event eveStateChanche(string id, uint state);
+    event eveStateChanche(string id_p_, EnumEstado state_p_);
 
     function fundProject () public payable requireFundProyect { //funcion que registra el aporte
     
         
-        require(proyecto.state != 1, "la financiacion esta cerrada");
+        require(proyecto.state != EnumEstado.closed, "la financiacion esta cerrada");
         require(msg.value > 0 , "no se pude aportar cero fondos");     
         
         proyecto.walletAutor.transfer(msg.value);
@@ -52,7 +52,7 @@ contract Proyecto_funding{
             
     }
 
-    function changeProjectState(uint  newStage) public requireChangeName{
+    function changeProjectState(EnumEstado  newStage) public requireChangeName{
         
         //require(state != newStage, "ngfn");
         proyecto.state=newStage;
