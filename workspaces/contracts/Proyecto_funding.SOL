@@ -4,30 +4,35 @@ pragma solidity >=0.7.0 <0.9.0;
 
 contract Proyecto_funding{
 
-    string public id;
-    string public name;
-    string public descripcion;
-    address payable public walletAutor;
-    uint public state=0;
-    uint public funds; //Almacena todos los aportes
-    uint public fundRaisingGoal; //Cuanto se espera ganar con la ronda de fundraising
+
+    struct Proyecto {
+        string  id;
+        string  name;
+        string  descripcion;
+        address payable  walletAutor;
+        uint  state;
+        uint  funds; //Almacena todos los aportes
+        uint  fundRaisingGoal; //Cuanto se espera ganar con la ronda de fundraising
+    }
+
+    Proyecto public proyecto;
+
+
 
     constructor (string memory _id, string memory _name, string memory _descripcion, uint _fundRaisingGoal) {
-        id=_id;
-        name=_name;
-        descripcion=_descripcion;
-        fundRaisingGoal=_fundRaisingGoal;
-        walletAutor=payable(msg.sender); //no entiendo
+        
+        proyecto = Proyecto(_id, _name, _descripcion, payable(msg.sender), 0, 0, _fundRaisingGoal);
+
     }  
 
 
     modifier requireChangeName() {
-        require( msg.sender == walletAutor, "no puede modificar el proyecto"); 
+        require( msg.sender == proyecto.walletAutor, "no puede modificar el proyecto"); 
         _;
     }
 
     modifier  requireFundProyect () {
-        require(msg.sender != walletAutor, "un autor del proyecto no puede autofinanciarse");
+        require(msg.sender != proyecto.walletAutor, "un autor del proyecto no puede autofinanciarse");
         _;
 
     }
@@ -38,11 +43,11 @@ contract Proyecto_funding{
     function fundProject () public payable requireFundProyect { //funcion que registra el aporte
     
         
-        require(state != 1, "la financiacion esta cerrada");
+        require(proyecto.state != 1, "la financiacion esta cerrada");
         require(msg.value > 0 , "no se pude aportar cero fondos");     
         
-        walletAutor.transfer(msg.value);
-        funds+=msg.value;
+        proyecto.walletAutor.transfer(msg.value);
+        proyecto.funds+=msg.value;
         emit eveContribuidor(msg.sender, msg.value); 
             
     }
@@ -50,8 +55,8 @@ contract Proyecto_funding{
     function changeProjectState(uint  newStage) public requireChangeName{
         
         //require(state != newStage, "ngfn");
-        state=newStage;
-        emit eveStateChanche(id, state);
+        proyecto.state=newStage;
+        emit eveStateChanche(proyecto.id, proyecto.state);
 
     }
 }
